@@ -19,12 +19,35 @@ function run(trigger, scope, data, config, callback) {
                 `${data.message} \n` +
                 `${tConf.hashtag} ${config.globalHashtags}`;
               // TODO: this should limit chars of twittertext
-              tw.post('statuses/update', {
-                status: twittertext
-              }, function (err, data, response) {
-                if (err) { logger.main.error('Twitter: ' + err); }else{ logger.main.info('Twitter: ' + 'Tweet Posted')}
-                callback();
-              })
+
+              if (twittertext.length > 280){
+                twitterPayload = twittertext.match(/.{1,279}/g)
+                spacer = "…"
+                for (x in twitterPayload){
+                  if (x == twitterPayload.length -1 ){
+                    tw.post('statuses/update', {
+                      status: twitterPayload[x]
+                    }, function (err, data, response) {
+                      if (err) { logger.main.error('Twitter: ' + err); }else{ logger.main.info('Twitter: ' + 'Tweet Posted')}
+                      callback();
+                    })
+                  }else{
+                    tw.post('statuses/update', {
+                      status: twitterPayload[x] + spacer
+                    }, function (err, data, response) {
+                      if (err) { logger.main.error('Twitter: ' + err); }else{ logger.main.info('Twitter: ' + 'Tweet Posted')}
+                      callback();
+                    })
+                  }                  
+                }
+              }else{
+                tw.post('statuses/update', {
+                  status: twittertext
+                }, function (err, data, response) {
+                  if (err) { logger.main.error('Twitter: ' + err); }else{ logger.main.info('Twitter: ' + 'Tweet Posted')}
+                  callback();
+                })
+              }
         }
     } else {
         callback();
