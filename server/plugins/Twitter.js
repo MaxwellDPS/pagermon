@@ -18,20 +18,20 @@ function run(trigger, scope, data, config, callback) {
               var twittertext = `${data.agency} - ${data.alias} \n` +
                 `${data.message} \n` +
                 `${tConf.hashtag} ${config.globalHashtags}`;
-              // TODO: this should limit chars of twittertext
 
-              if (twittertext.length > 280){
-                twitterPayload = twittertext.match(/.{1,279}/g)
-                spacer = "…"
-                for (x in twitterPayload){
-                  if (x == twitterPayload.length -1 ){
+
+              if (twittertext.length > 280){   // Check if message > 280 Chars
+                twitterPayload = twittertext.match(/.{1,278}/g)   // use regex to split allowing 2 spaces for the spacer
+                spacer = " …" // Space + unicode/U+2026
+                for (x in twitterPayload){  // Iterate over message chunks 
+                  if (x == twitterPayload.length -1 ){  // If its the last message dont add spacer
                     tw.post('statuses/update', {
                       status: twitterPayload[x]
                     }, function (err, data, response) {
                       if (err) { logger.main.error('Twitter: ' + err); }else{ logger.main.info('Twitter: ' + 'Tweet Posted')}
                       callback();
                     })
-                  }else{
+                  }else{// If its not the last message add spacer
                     tw.post('statuses/update', {
                       status: twitterPayload[x] + spacer
                     }, function (err, data, response) {
@@ -40,7 +40,7 @@ function run(trigger, scope, data, config, callback) {
                     })
                   }                  
                 }
-              }else{
+              }else{// if not, post message
                 tw.post('statuses/update', {
                   status: twittertext
                 }, function (err, data, response) {
